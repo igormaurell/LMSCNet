@@ -25,6 +25,13 @@ def parse_args():
     help='path to dataset root folder',
     type=str,
   )
+  parser.add_argument(
+    '--n',
+    dest='n_sequence',
+    default=-1,
+    help='path to dataset root folder',
+    type=int,
+  )
   args = parser.parse_args()
   return args
 
@@ -65,13 +72,15 @@ def main():
 
   args = parse_args()
 
+  n_sequence = args.n_sequence
+
   dset_root = args.dataset_root
   yaml_path, _ = os.path.split(os.path.realpath(__file__))
   remap_lut = SemanticKittiIO.get_remap_lut(os.path.join(yaml_path, 'semantic-kitti.yaml'))
   dataset_config = yaml.safe_load(open(os.path.join(yaml_path, 'semantic-kitti.yaml'), 'r'))
   sequences = sorted(glob(os.path.join(dset_root, 'dataset', 'sequences', '*')))
   # Selecting training/validation set sequences only (labels unavailable for test set)
-  sequences = sequences[:11]
+  sequences = sequences[:11] if n_sequence == -1 else [sequences[n_sequence]]
   grid_dimensions = dataset_config['grid_dims']   # [W, H, D]
 
   assert len(sequences) > 0, 'Error, no sequences on selected dataset root path'
